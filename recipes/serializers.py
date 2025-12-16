@@ -13,10 +13,16 @@ class IngredientSerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
         read_only_fields = ('id',)
 
-class RecipeSerializer(serializers.ModelSerializer):
+class RecipeReadSerializer(serializers.ModelSerializer):
     ingredients = IngredientSerializer(many=True, required=False)
     tags = TagSerializer(many=True, required=False)
 
+    class Meta:
+        model = Recipe
+        fields = ('id', 'title', 'time_minutes', 'price', 'link', 'description', 'tags', 'ingredients')
+        read_only_fields = ('id',)
+
+class RecipeWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'title', 'time_minutes', 'price', 'link', 'description', 'tags', 'ingredients')
