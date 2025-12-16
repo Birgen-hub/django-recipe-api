@@ -10,12 +10,18 @@ class BaseRecipeAttrViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, view
     authentication_classes = [authentication.TokenAuthentication]
     permission_classes = [permissions.IsAuthenticated]
     
-    # NOTE: The actual queryset attribute is set in the inheriting classes (TagViewSet, IngredientViewSet)
+    # We must define the base queryset attribute here, even if it's empty, 
+    # and then override it in the subclasses.
+    queryset = None # Defined here for safety, overridden in subclasses
 
     def get_queryset(self):
         """Return objects for the current authenticated user only"""
-        # This filters the queryset (Tag.objects.all() or Ingredient.objects.all())
-        # to only include items belonging to the current user.
+        # Ensure the queryset is set by the subclass
+        if self.queryset is None:
+            raise NotImplementedError("ViewSet must define a queryset attribute.")
+            
+        # Filter the subclass's queryset by the current user
+        # Note: request.user is guaranteed to be set here because IsAuthenticated permission passed.
         return self.queryset.filter(user=self.request.user).order_by('-name')
 
     def perform_create(self, serializer):
