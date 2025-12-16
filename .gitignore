@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+*.egg-info/
+.venv/
+/staticfiles/
+/media/
+*.sqlite3
+.env
