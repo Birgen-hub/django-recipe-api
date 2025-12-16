@@ -1,4 +1,6 @@
-from rest_framework import viewsets, mixins, permissions, authentication
+from rest_framework import viewsets, mixins, permissions
+# NOTE: Using knox.auth.TokenAuthentication instead of rest_framework.authentication.TokenAuthentication
+from knox.auth import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Tag, Ingredient, Recipe
@@ -7,21 +9,17 @@ from .serializers import TagSerializer, IngredientSerializer, RecipeSerializer, 
 # Base viewset for Tag and Ingredient
 class BaseRecipeAttrViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
     """Base viewset for user owned recipe attributes"""
-    authentication_classes = [authentication.TokenAuthentication]
+    # FIX: Use knox TokenAuthentication
+    authentication_classes = [TokenAuthentication] 
     permission_classes = [permissions.IsAuthenticated]
     
-    # We must define the base queryset attribute here, even if it's empty, 
-    # and then override it in the subclasses.
-    queryset = None # Defined here for safety, overridden in subclasses
+    queryset = None
 
     def get_queryset(self):
         """Return objects for the current authenticated user only"""
-        # Ensure the queryset is set by the subclass
         if self.queryset is None:
             raise NotImplementedError("ViewSet must define a queryset attribute.")
             
-        # Filter the subclass's queryset by the current user
-        # Note: request.user is guaranteed to be set here because IsAuthenticated permission passed.
         return self.queryset.filter(user=self.request.user).order_by('-name')
 
     def perform_create(self, serializer):
@@ -45,7 +43,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     """Manage recipes in the database"""
     serializer_class = RecipeSerializer
     queryset = Recipe.objects.all()
-    authentication_classes = [authentication.TokenAuthentication]
+    # FIX: Use knox TokenAuthentication
+    authentication_classes = [TokenAuthentication] 
     permission_classes = [permissions.IsAuthenticated]
 
     def _params_to_ints(self, qs):
